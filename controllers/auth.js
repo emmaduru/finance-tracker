@@ -59,5 +59,13 @@ module.exports = {
         } catch (err) {
             return res.json({success: false, error: err.message})
         }
+    },
+    
+    signout: (req, res) => {
+        res.cookie("ft_auth", "", {
+            maxAge: 1,
+            httpOnly: true
+        })
+        return res.redirect("/auth/signin")
     }
 }
