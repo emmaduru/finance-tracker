@@ -12,6 +12,7 @@ mongoose.connect(process.env.DB_URL, (err) => {
 
 app.use(express.json())
 app.use(cookieParser())
+app.use(express.static("public"))
 app.set("view engine", "ejs")
 
 const {protect, checkUser} = require("./middleware/auth")
@@ -25,7 +26,9 @@ app.get("/", protect, (req, res) => {
 app.use("/auth", require("./routes/auth"))
 app.use("/transactions", require("./routes/transaction"))
 
-app.listen(5000, (err) => {
+const port = process.env.PORT || 5000
+
+app.listen(port, (err) => {
     if (err) throw err;
-    console.log("Server running at port 5000.")
+    console.log(`Server running at port ${port}.`)
 })
