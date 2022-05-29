@@ -14,7 +14,11 @@ app.use(express.json())
 app.use(cookieParser())
 app.set("view engine", "ejs")
 
-app.get("/", (req, res) => {
+const {protect, checkUser} = require("./middleware/auth")
+
+app.use("*", checkUser)
+
+app.get("/", protect, (req, res) => {
     res.render("home")
 })
 
