@@ -24,7 +24,7 @@ app.get("/", protect, (req, res) => {
 })
 
 app.use("/auth", require("./routes/auth"))
-app.use("/transactions", require("./routes/transaction"))
+app.use("/transactions", protect, require("./routes/transaction"))
 
 const port = process.env.PORT || 5000
 
