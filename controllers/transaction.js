@@ -15,7 +15,7 @@ module.exports = {
             const income = transactions.filter(transaction => transaction.type == "income")
             const expenses = transactions.filter(transaction => transaction.type == "expense")
             
-            res.render("home", {transactions: transactions.reverse(), income: sum(income), expenses: sum(expenses)})
+            res.render("home", {transactions: transactions.reverse(), income: sum(income), expenses: sum(expenses), title: "Transactions"})
         } catch (err) {
             return res.json({success: false, error: err.message})
         }

@@ -11,7 +11,7 @@ const createToken = (id) => {
 
 module.exports = {
     signup_page: (req, res) => {
-        return res.render("auth/signup")
+        return res.render("auth/signup", {title: "Sign Up"})
     },
 
     signup: async (req, res) => {
@@ -35,7 +35,7 @@ module.exports = {
     },
 
     signin_page: (req, res) => {
-        return res.render("auth/signin")
+        return res.render("auth/signin", {title: "Sign In"})
     },
 
     signin: async(req, res) => {
