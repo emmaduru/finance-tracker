@@ -40,7 +40,6 @@ module.exports = {
 
     signin: async(req, res) => {
         const {username, password} = req.body;
-        console.log(req.body)
         try {
             if (!username || !password) throw new Error("All fields are required")
 

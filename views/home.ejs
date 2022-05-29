@@ -1,21 +1,21 @@
 <%- include("layouts/header") %> 
     <div class="info-cards row">
         <div class="text-white text-center col-md-4">
-            <div class="card bg-success">
+            <div class="card my-1 bg-success">
                 <div class="card-header">Income</div>
-                <div class="card-body">$5000</div>
+                <div class="card-body">$<%= income %></div>
             </div>
         </div>
         <div class="text-white text-center col-md-4">
-            <div class="card bg-danger">
+            <div class="card my-1 bg-danger">
                 <div class="card-header">Expenses</div>
-                <div class="card-body">$3000</div>
+                <div class="card-body">$<%= expenses %></div>
             </div>
         </div>
         <div class="text-white text-center col-md-4">
-            <div class="card bg-secondary">
+            <div class="card my-1 bg-secondary">
                 <div class="card-header">Balance</div>
-                <div class="card-body">$3000</div>
+                <div class="card-body">$<%= income - expenses %></div>
             </div>
         </div>
     </div>
@@ -39,11 +39,16 @@
                 <h5 class="modal-title" id="exampleModalLabel">Add Transaction</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="">
+                <form id="create-transaction">
                     <div class="modal-body">
                         <div class="form-group mb-2">
                             <label for="description">Description</label>
                             <input type="text" name="description" id="description" class="form-control">
+                        </div>
+
+                        <div class="form-group mb-2">
+                            <label for="amount">Amount</label>
+                            <input type="number" name="amount" id="amount" class="form-control">
                         </div>
                 
                         <div class="form-group mb-2">
@@ -53,37 +58,88 @@
                                 <option value="expense">Expense</option>
                             </select>
                         </div>
+
+                        <div class="err-msg"></div>
                     </div>
                     <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Add Transaction</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Add Transaction</button>
                     </div>
                 </form>
             </div>
             </div>
         </div> 
+        <hr>
         <ul class="list-group">
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              Salary
-              <span>
-                <span class="badge bg-success rounded-pill mx-2">$300</span>
-                <a href="#" class="text-danger"><i class="fa-solid fa-trash-can"></i></a>
-              </span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              School Fees
-              <span>
-                <span class="badge bg-danger rounded-pill mx-2">$265</span>
-                <a href="#" class="text-danger"><i class="fa-solid fa-trash-can"></i></a>
-              </span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              Stationery
-              <span>
-                <span class="badge bg-danger rounded-pill mx-2">$10</span>
-                <a href="#" class="text-danger"><i class="fa-solid fa-trash-can"></i></a>
-              </span>
-            </li>
+            <% transactions.forEach(transaction => { %>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <%= transaction.description %> 
+                    <span>
+                        <span class="badge <% if (transaction.type == "income") { %> bg-success <% } else { %> bg-danger <% } %> rounded-pill mx-2">$<%= transaction.amount %></span>
+                        <a href="#" class="text-danger delete-btn" id="<%= transaction._id %>"><i class="fa-solid fa-trash-can"></i></a>
+                    </span>
+                </li>
+            <% }) %> 
+                
           </ul>
     </div>
 <%- include("layouts/footer") %> 
+<script>
+const createTransaction = document.querySelector("#create-transaction")
+let error = ""
+const errMsg = document.querySelector(".err-msg")
+const setError = (err) => {
+    errMsg.innerHTML = `
+        <div class="card card-body text-danger">${err}</div>
+        `
+        return
+}
+
+createTransaction.addEventListener("submit", async (e) => {
+    e.preventDefault()
+
+    const description = createTransaction.description.value;
+    const amount = Number(createTransaction.amount.value);
+    const type = createTransaction.type.value
+
+    console.log(amount)
+
+    if (!description || !amount || !type) setError("All fields are required.")
+    if (type !== "income" && type !== "expense") setError("Transaction type is invalid.")
+    if (typeof(amount) !== "number") setError("Amount must be a number.")
+
+    try {
+        const res = await fetch("/transactions/create", {
+            method: "POST",
+            body: JSON.stringify({description, amount, type}),
+            headers: {"Content-Type": "application/json"}
+        })
+        const data = await res.json()
+
+        if (data.success) window.location.reload()
+        else setError(data.error)
+    } catch(err) {
+        console.log(err)
+    }
+})
+
+const deleteBtns = document.querySelectorAll(".delete-btn")
+
+deleteBtns.forEach(deleteBtn => {
+    deleteBtn.addEventListener("click", async (e) => {
+        e.preventDefault()
+
+        try {
+            const res = await fetch (`/transactions/${deleteBtn.id}/delete`, {
+                method: "DELETE"
+            })
+            const data = await res.json()
+
+            if (data.success) window.location.reload()
+        } catch (err) {
+            console.log(err)
+        }
+    })
+})
+
+</script>

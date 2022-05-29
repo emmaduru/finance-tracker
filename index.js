@@ -19,10 +19,11 @@ const {protect, checkUser} = require("./middleware/auth")
 app.use("*", checkUser)
 
 app.get("/", protect, (req, res) => {
-    res.render("home")
+    res.redirect("/transactions")
 })
 
 app.use("/auth", require("./routes/auth"))
+app.use("/transactions", require("./routes/transaction"))
 
 app.listen(5000, (err) => {
     if (err) throw err;
