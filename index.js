@@ -14,6 +14,10 @@ app.get("/signup", (req, res) => {
     res.render("auth/signup")
 })
 
+app.get("/signin", (req, res) => {
+    res.render("auth/signin")
+})
+
 app.listen(5000, (err) => {
     if (err) throw err;
     console.log("Server running at port 5000.")
