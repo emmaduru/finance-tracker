@@ -1,6 +1,7 @@
 const User = require("../models/user")
 const {isEmail} = require("validator")
 const jwt = require("jsonwebtoken")
+const bcrypt = require("bcrypt")
 
 const createToken = (id) => {
     return jwt.sign({id}, process.env.JWT_SECRET, {
@@ -12,6 +13,7 @@ module.exports = {
     signup_page: (req, res) => {
         return res.render("auth/signup")
     },
+
     signup: async (req, res) => {
         const {username, email, password} = req.body;
         try {
@@ -26,9 +28,36 @@ module.exports = {
                 maxAge: 24*60*60*1000,
                 httpOnly: true
             })
-            res.json({success: true, error: null})
+            return res.json({success: true, error: null})
         } catch (err) {
-            res.json({success: false, error: err.message})
+            return res.json({success: false, error: err.message})
+        }
+    },
+
+    signin_page: (req, res) => {
+        return res.render("auth/signin")
+    },
+
+    signin: async(req, res) => {
+        const {username, password} = req.body;
+        console.log(req.body)
+        try {
+            if (!username || !password) throw new Error("All fields are required")
+
+            const user = await User.findOne({username}).select("+password")
+            if (user && await bcrypt.compare(password, user.password)) {
+                const token = createToken(user._id)
+                res.cookie("ft_auth", token, {
+                    maxAge: 24*60*60*1000,
+                    httpOnly: true
+                })
+                return res.json({success: true, error: null})
+            }
+
+            throw new Error("Invalid Username or Password")
+
+        } catch (err) {
+            return res.json({success: false, error: err.message})
         }
     }
 }

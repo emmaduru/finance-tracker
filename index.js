@@ -20,10 +20,6 @@ app.get("/", (req, res) => {
 
 app.use("/auth", require("./routes/auth"))
 
-app.get("/signin", (req, res) => {
-    res.render("auth/signin")
-})
-
 app.listen(5000, (err) => {
     if (err) throw err;
     console.log("Server running at port 5000.")
