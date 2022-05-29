@@ -1,6 +1,6 @@
 <%- include("../layouts/header") %> 
     <h4>Sign Up</h4>
-    <form action="">
+    <form id="signup-form">
         <div class="form-group mb-2">
             <label for="username">Username</label>
             <input type="text" name="username" id="username" class="form-control">
@@ -26,5 +26,65 @@
             <small>Already have an account? <a href="/signin">Sign In</a></small>
         </div>
 
+        <div class="err-msg"></div>
+
     </form>
 <%- include("../layouts/footer") %>
+<script>
+const signupForm = document.querySelector("#signup-form")
+let error = ""
+const errMsg = document.querySelector(".err-msg")
+
+signupForm.addEventListener("submit", async (e) => {
+    e.preventDefault()
+
+    const username = signupForm.username.value;
+    const email = signupForm.email.value;
+    const password = signupForm.password.value;
+    const confirm_password = signupForm.confirm_password.value;
+
+    if (password !== confirm_password) {
+        error = "Passwords do not match."
+    }
+
+    if (password.length < 6){
+        error = "Password should have at least 3 characters."
+    }
+
+    if (username.length < 3){
+        error = "Username should have at least 3 characters."
+    }
+
+    if (!username || !email || !password || !confirm_password) {
+        error = "All fields are required."
+    }
+
+    if (error) {
+        errMsg.innerHTML = `
+        <div class="card card-body text-danger">${error}</div>
+        `
+        return
+    }
+
+    try {
+        const res = await fetch("/auth/signup", {
+            method: "POST",
+            body: JSON.stringify({username, email, password}),
+            headers: {"Content-Type": "application/json"}
+        })
+        const data = await res.json()
+
+        if (data.success) {
+            window.location.replace("/")
+        } else {
+            error = data.error
+            errMsg.innerHTML = `
+            <div class="card card-body text-danger">${error}</div>
+            `
+        }
+
+    } catch (err) {
+        console.log(err)
+    }
+})
+</script>
